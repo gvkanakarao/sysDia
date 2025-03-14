@@ -83,10 +83,6 @@ jobs:
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip -o sdk-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
           export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
-      - name: Verify Permissions for sdkmanager
-        run: |
-          chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
-          ls -l $HOME/android-sdk/cmdline-tools/latest/bin/
 
       - name: Accept Android SDK licenses
         run: |
