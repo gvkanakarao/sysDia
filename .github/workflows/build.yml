@@ -86,11 +86,11 @@ jobs:
           rmdir cmdline-tools || true
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
 
-      - name: Accept Android SDK licenses
+      - name: Accept All Android SDK Licenses
         run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --licenses || true
-
-      - name: Manually accept licenses
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true  
+          
+      - name: Manually Add License Files
         run: |
           mkdir -p $HOME/android-sdk/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
@@ -99,6 +99,7 @@ jobs:
       - name: Install Android Build Tools & Platform Tools
         run: |
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2" --sdk_root=$HOME/android-sdk
+       
       - name: Build APK
         run: |
           buildozer -v android debug
