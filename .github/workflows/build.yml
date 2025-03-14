@@ -79,11 +79,14 @@ jobs:
       - name: Install Android SDK Command-line Tools
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
-          cd $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools/latest
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip -o sdk-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
-          export PATH=$HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin:$PATH
-
+          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
+      - name: Verify Permissions for sdkmanager
+        run: |
+          chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
+          ls -l $HOME/android-sdk/cmdline-tools/latest/bin/
 
       - name: Accept Android SDK licenses
         run: |
@@ -97,7 +100,7 @@ jobs:
 
       - name: Install Android Build Tools & Platform Tools
         run: |
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;36.0.0" --sdk_root=$HOME/android-sdk
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2" --sdk_root=$HOME/android-sdk
 
       - name: Build APK
         run: |
