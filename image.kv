@@ -1,0 +1,43 @@
+#:kivy 2.1.0
+
+ScreenManager:
+    HomeScreen:
+    ImageScreen:
+
+<HomeScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        Button:
+            text: "Start Viewing"
+            size_hint_y: 0.2
+            on_press: root.go_to_images()
+
+<ImageScreen>:
+    name: "image_screen"
+    BoxLayout:
+        orientation: "vertical"
+
+        Scatter:
+            do_scale: True
+            do_translation: True
+            do_rotation: False
+            size_hint: 1, 0.9  # ✅ Takes 90% of screen height
+            Image:
+                source: root.image_source
+                allow_stretch: True  # ✅ Stretches to fit space
+                keep_ratio: True  # ✅ Maintains correct aspect ratio
+                size_hint: 1, 1  # ✅ Full size inside Scatter
+
+        BoxLayout:
+            size_hint_y: 0.1  # ✅ Reduce button area for more image space
+            Button:
+                text: "Back"
+                on_press: root.prev_image()
+            Button:
+                text: "Home"
+                on_press: app.root.current = "home"
+            Button:
+                text: "Next"
+                on_press: root.next_image()
+
+
