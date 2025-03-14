@@ -82,8 +82,10 @@ jobs:
           cd $HOME/android-sdk/cmdline-tools
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
           unzip sdk-tools.zip -d latest
-          mv latest/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          mv latest/* $HOME/android-sdk/cmdline-tools/latest/
           export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
+
 
       - name: Accept Android SDK licenses
         run: |
