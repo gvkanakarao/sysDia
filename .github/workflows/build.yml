@@ -10,17 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the Code
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
 
+      # Step 3: Update Package Lists
       - name: Update package lists
         run: sudo apt-get update
 
+      # Step 4: Install Dependencies
       - name: Install dependencies
         run: |
           sudo apt-get install -y -o Acquire::Retries=3 \
@@ -65,45 +69,58 @@ jobs:
             libqt5webkit5 \
             libqt5test5
 
+      # Step 5: Install Buildozer and Cython
       - name: Install buildozer and cython
         run: |
           pip install buildozer
           pip install Cython
 
+      # Step 6: Set up Environment Variables
       - name: Set up environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/36.0.0:$PATH" >> $GITHUB_ENV
+          echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/33.0.2:$PATH" >> $GITHUB_ENV
 
+      # Step 7: Install Android SDK Command-line Tools
       - name: Install Android SDK Command-line Tools
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
           cd $HOME/android-sdk/cmdline-tools/latest
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip sdk-tools.zip
+          unzip -o sdk-tools.zip
           mv cmdline-tools/* . || true
           rmdir cmdline-tools || true
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
 
+      # Step 8: Accept All Android SDK Licenses
       - name: Accept All Android SDK Licenses
         run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true  
-          
-      - name: Manually Add License Files
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      # Step 9: Create License Files Manually (if needed)
+      - name: Create License Files
         run: |
           mkdir -p $HOME/android-sdk/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
 
+      # Step 10: Install Android Build Tools and Platform Tools
       - name: Install Android Build Tools & Platform Tools
         run: |
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2" --sdk_root=$HOME/android-sdk
-       
+
+      # Step 11: Debug Directory Structure (if issues persist)
+      - name: Debug SDK Directory Structure
+        run: |
+          ls -R $HOME/android-sdk
+
+      # Step 12: Build APK
       - name: Build APK
         run: |
           buildozer -v android debug
 
+      # Step 13: Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
