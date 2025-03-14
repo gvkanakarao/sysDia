@@ -75,14 +75,18 @@ jobs:
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
           echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/36.0.0:$PATH" >> $GITHUB_ENV
-
+      - name: Debug List SDK Directory Structure
+        run: |
+          ls -R $HOME/android-sdk/cmdline-tools
       - name: Install Android SDK Command-line Tools
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
           cd $HOME/android-sdk/cmdline-tools/latest
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip -o sdk-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
-          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
+          unzip sdk-tools.zip
+          mv cmdline-tools/* . || true
+          rmdir cmdline-tools || true
+          chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
 
       - name: Accept Android SDK licenses
         run: |
@@ -97,7 +101,6 @@ jobs:
       - name: Install Android Build Tools & Platform Tools
         run: |
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.2" --sdk_root=$HOME/android-sdk
-
       - name: Build APK
         run: |
           buildozer -v android debug
