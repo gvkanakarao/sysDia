@@ -75,9 +75,7 @@ jobs:
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
           echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/36.0.0:$PATH" >> $GITHUB_ENV
-      - name: Debug List SDK Directory Structure
-        run: |
-          ls -R $HOME/android-sdk/cmdline-tools
+
       - name: Install Android SDK Command-line Tools
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
