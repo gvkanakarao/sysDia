@@ -51,7 +51,6 @@ jobs:
             libncurses5-dev \
             libncursesw5-dev \
             libreadline6-dev \
-            libffi-dev \
             libsqlite3-dev \
             libgdbm-dev \
             libdb-dev \
@@ -75,31 +74,21 @@ jobs:
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/31.0.0" >> $GITHUB_ENV
+          echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/36.0.0:$PATH" >> $GITHUB_ENV
 
       - name: Install Android SDK Command-line Tools
         run: |
           mkdir -p $HOME/android-sdk/cmdline-tools
           cd $HOME/android-sdk/cmdline-tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
-          unzip commandlinetools-linux-6858069_latest.zip -d latest
-          mv latest/cmdline-tools latest/tools
-          export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/tools/bin
+          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+          unzip sdk-tools.zip -d latest
+          mv latest $HOME/android-sdk/cmdline-tools/latest
+          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
 
       - name: Accept Android SDK licenses
         run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/tools/bin/sdkmanager --licenses --sdk_root=$HOME/android-sdk
-
-      - name: Download and install libjasper
-        run: |
-          wget https://github.com/jasper-software/jasper/archive/version-2.0.25.zip
-          unzip version-2.0.25.zip
-          cd jasper-version-2.0.25
-          mkdir -p build
-          cd build
-          cmake ..
-          make
-          sudo make install
+          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Manually accept licenses
         run: |
@@ -107,9 +96,9 @@ jobs:
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
 
-      - name: Install Android Build Tools 36
+      - name: Install Android Build Tools & Platform Tools
         run: |
-          $HOME/android-sdk/cmdline-tools/latest/tools/bin/sdkmanager "build-tools;36.0.0" --sdk_root=$HOME/android-sdk
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-31" "build-tools;36.0.0" --sdk_root=$HOME/android-sdk
 
       - name: Build APK
         run: |
