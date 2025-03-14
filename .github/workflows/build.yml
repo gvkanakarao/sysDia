@@ -78,22 +78,16 @@ jobs:
 
       - name: Install Android SDK Command-line Tools
         run: |
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          cd $HOME/android-sdk/cmdline-tools
-          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip sdk-tools.zip
-          mkdir -p latest
-          mv cmdline-tools latest/  # Rename extracted folder correctly
-          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
-
-      - name: Accept Android SDK licenses
-        run: |
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
           cd $HOME/android-sdk/cmdline-tools
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
-          unzip sdk-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
+          unzip -o sdk-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
           export PATH=$HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin:$PATH
-          yes | $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --licenses
+
+
+      - name: Accept Android SDK licenses
+        run: |
+          yes | $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --licenses || true
 
       - name: Manually accept licenses
         run: |
