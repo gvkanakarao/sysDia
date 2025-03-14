@@ -101,6 +101,10 @@ jobs:
           make
           sudo make install
 
+      - name: Install Android Build Tools 36
+        run: |
+          $HOME/android-sdk/cmdline-tools/latest/tools/bin/sdkmanager "build-tools;36.0.0" --sdk_root=$HOME/android-sdk
+
       - name: Build APK
         run: |
           buildozer -v android debug
