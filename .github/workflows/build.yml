@@ -88,8 +88,12 @@ jobs:
 
       - name: Accept Android SDK licenses
         run: |
-          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          cd $HOME/android-sdk/cmdline-tools
+          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+          unzip sdk-tools.zip -d $HOME/android-sdk/cmdline-tools/latest
+          export PATH=$HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin:$PATH
+          yes | $HOME/android-sdk/cmdline-tools/latest/cmdline-tools/bin/sdkmanager --licenses
 
       - name: Manually accept licenses
         run: |
