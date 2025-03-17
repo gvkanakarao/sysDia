@@ -30,17 +30,22 @@ jobs:
             python3-venv
           git --version  # Verify Git installation
 
-      # Step 4: Set up Android SDK environment variables
+      # Step 4: Remove Any Existing Android SDK (Prevent Conflict)
+      - name: Remove Existing Android SDK
+        run: |
+          rm -rf ~/.buildozer/android/platform/android-sdk
+          rm -rf ~/.buildozer/android/platform/build-tools
+          rm -rf ~/.buildozer/android/platform/platform-tools
+
+      # Step 5: Set up Android SDK environment variables
       - name: Set up Environment Variables
-        shell: bash
         run: |
           echo 'ANDROID_HOME=$HOME/android-sdk' >> $GITHUB_ENV
           echo 'ANDROID_SDK_ROOT=$HOME/android-sdk' >> $GITHUB_ENV
           echo 'PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/34.0.0:$PATH' >> $GITHUB_ENV
 
-      # Step 5: Install Android SDK Command-line Tools
+      # Step 6: Install Android SDK Command-line Tools
       - name: Install Android SDK
-        shell: bash
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk/cmdline-tools/latest
@@ -51,9 +56,8 @@ jobs:
           rmdir cmdline-tools || true
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
 
-      # Step 6: Accept Android SDK Licenses (Fix License Issue)
+      # Step 7: Accept Android SDK Licenses (Fix License Issue)
       - name: Accept Android SDK Licenses
-        shell: bash
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk/licenses
@@ -61,18 +65,16 @@ jobs:
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      # Step 7: Install Android Build Tools & Platform Tools
+      # Step 8: Install Android Build Tools & Platform Tools (Force Version 34.0.0)
       - name: Install Android Build Tools & Platform Tools
-        shell: bash
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      # Step 8: Verify Android SDK Installation
+      # Step 9: Verify Android SDK Installation
       - name: Verify Android SDK Installation
-        shell: bash
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           echo "Checking Build Tools Directory..."
@@ -95,20 +97,30 @@ jobs:
             echo "⚠️ Warning: Platform Tools directory not found!"
           fi
 
-      # Step 9: Install Buildozer and Dependencies
+      # Step 10: Install Buildozer and Dependencies
       - name: Install Buildozer and Dependencies
         run: |
           pip install --upgrade pip
           pip install buildozer Cython virtualenv
 
-      # Step 10: Build the APK using Buildozer
+      # Step 11: Verify AIDL Installation Before Building
+      - name: Verify AIDL Installation
+        run: |
+          export PATH="/usr/bin:/bin:$PATH"
+          if [ -f "$HOME/android-sdk/build-tools/34.0.0/aidl" ]; then
+            echo "✅ AIDL is installed correctly!"
+          else
+            echo "❌ Error: AIDL is missing!"
+            exit 1
+          fi
+
+      # Step 12: Build the APK using Buildozer
       - name: Build APK
-        shell: bash
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           buildozer -v android debug
 
-      # Step 11: Upload the APK file as an artifact
+      # Step 13: Upload the APK file as an artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
