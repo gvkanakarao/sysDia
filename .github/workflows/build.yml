@@ -38,6 +38,7 @@ jobs:
       # Step 5: Set up Android SDK environment variables
       - name: Set up Android SDK
         run: |
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/and
+          echo 'ANDROID_HOME=$HOME/android-sdk' >> $GITHUB_ENV
+          echo 'ANDROID_SDK_ROOT=$HOME/android-sdk' >> $GITHUB_ENV
+          echo 'PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/34.0.0:$PATH' >> $GITHUB_ENV
+          
