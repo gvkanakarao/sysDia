@@ -51,39 +51,46 @@ jobs:
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo "✅ Android SDK Installed."
 
-      - name: Manually Copy Pre-Accepted Licenses
+      - name: Auto Accept SDK Licenses
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk/licenses
-          echo "✅ Created missing license directory!"
-
-          echo "Fetching pre-accepted Android SDK licenses..."
-          curl -o $HOME/android-sdk/licenses/android-sdk-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/android-sdk-license
-          curl -o $HOME/android-sdk/licenses/android-sdk-preview-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/android-sdk-preview-license
-          curl -o $HOME/android-sdk/licenses/android-sdk-arm-dbt-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/android-sdk-arm-dbt-license
-          curl -o $HOME/android-sdk/licenses/google-gdk-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/google-gdk-license
-
-          echo "✅ Successfully copied pre-accepted licenses!"
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || echo "❌ sdkmanager still failed to accept licenses!"
+          echo "✅ Licenses should now be accepted!"
 
       - name: Verify Accepted Licenses
         run: |
           export PATH="/usr/bin:/bin:$PATH"
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          mkdir -p $HOME/android-sdk
-      
-          echo "Forcing fresh install of build-tools & AIDL..."
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
-            "platform-tools" "platforms;android-34" "build-tools;36.0.0" "extras;android;m2repository"
-      
-          echo "✅ Finished installation! Listing available build-tools..."
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
-      
-          echo "Checking if build-tools directory exists..."
-          if [ -d "$HOME/android-sdk/build-tools/36.0.0" ]; then
-            echo "✅ Build-tools 36.0.0 is installed!"
-            ls -l $HOME/android-sdk/build-tools/36.0.0/
+          echo "Checking if license files exist..."
+          if [ -d "$HOME/android-sdk/licenses/" ]; then
+            ls -l $HOME/android-sdk/licenses/
           else
-            echo "❌ Error: build-tools directory is missing!"
+            echo "❌ Error: License directory is missing!"
+            exit 1
+          fi
+
+      - name: Install Android Build Tools & AIDL (Fix Build-Tools Issue)
+        run: |
+          export PATH="/usr/bin:/bin:$PATH"
+          export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          mkdir -p $ANDROID_HOME
+
+          echo "Forcing fresh install of build-tools & AIDL..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install \
+            "platform-tools" "platforms;android-34" "build-tools;36.0.0" \
+            --sdk_root=$ANDROID_SDK_ROOT
+
+          echo "✅ Finished installation! Checking available build-tools..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
+
+          echo "Checking if build-tools directory exists..."
+          if [ -d "$ANDROID_HOME/build-tools/36.0.0" ]; then
+            echo "✅ Build-tools 36.0.0 is installed!"
+            ls -l $ANDROID_HOME/build-tools/36.0.0/
+          else
+            echo "❌ Error: build-tools directory is missing! Printing SDK directory structure..."
+            ls -lR $ANDROID_HOME/
             exit 1
           fi
 
