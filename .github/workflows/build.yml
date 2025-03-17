@@ -45,7 +45,8 @@ jobs:
       # Step 6: Install Android SDK Command-line Tools
       - name: Install Android SDK
         run: |
-          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          export PATH="/bin:/usr/bin:$PATH"
+          /bin/mkdir -p $HOME/android-sdk/cmdline-tools/latest
           cd $HOME/android-sdk/cmdline-tools/latest
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -o sdk-tools.zip
