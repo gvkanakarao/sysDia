@@ -68,8 +68,14 @@ jobs:
       # Step 7: Install required Android build tools
       - name: Install Android Build Tools & Platform Tools
         run: |
+          mkdir -p $HOME/android-sdk
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+          echo "Verifying installation..."
+          ls -l $HOME/android-sdk/build-tools/ || true
+          ls -l $HOME/android-sdk/build-tools/34.0.0/ || true
+          
       - name: Verify AIDL Installation
         run: |
           ls -l $HOME/android-sdk/build-tools/34.0.0/
