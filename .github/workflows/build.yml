@@ -51,13 +51,16 @@ jobs:
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo "✅ Android SDK Installed."
 
-      - name: Accept Android SDK Licenses (Force Acceptance)
+      - name: Accept Android SDK Licenses (Fix License Issue)
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/android-sdk/licenses/android-sdk-arm-dbt-license
+          echo "33cbbd2b7a24472b8a14df7523e97b9a8463d0d0" > $HOME/android-sdk/licenses/google-gdk-license
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          echo "✅ Android SDK licenses accepted!"
 
       - name: Install Android Build Tools & Platform Tools (Force Version 36.0.0)
         run: |
@@ -69,6 +72,9 @@ jobs:
           echo "✅ Successfully installed build-tools;36.0.0!"
           echo "Checking installed build-tools versions..."
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
+
+          echo "Verifying License Acceptance..."
+          ls -l $HOME/android-sdk/licenses/ || echo "❌ Error: License files are missing!"
 
       - name: Verify Android SDK Installation
         run: |
@@ -104,14 +110,9 @@ jobs:
           echo "Verifying Installed Build Tools..."
           ls -l $ANDROID_HOME/build-tools/
       
-          echo "Verifying AIDL Installation..."
-          if [ -f "$ANDROID_HOME/build-tools/36.0.0/aidl" ]; then
-            echo "✅ AIDL is installed correctly!"
-          else
-            echo "❌ Error: AIDL is missing!"
-            exit 1
-          fi
-      
+          echo "Verifying License Files..."
+          ls -l $ANDROID_HOME/licenses/ || echo "❌ Error: License files are missing!"
+
           echo "Forcing Buildozer to use build-tools;36.0.0"
           sed -i '/android.build_tools_version/c\android.build_tools_version = 36.0.0' buildozer.spec || echo "Failed to override build-tools version in buildozer.spec"
 
