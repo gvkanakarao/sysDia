@@ -24,7 +24,7 @@ jobs:
           sudo apt-get install -y git python3-pip python3-setuptools python3-dev \
             build-essential libssl-dev libffi-dev cython3 \
             openjdk-17-jdk unzip zlib1g-dev libncurses5-dev libsqlite3-dev \
-            python3-venv
+            python3-venv expect
           git --version
 
       - name: Remove Existing Android SDK (Prevent Conflict)
@@ -51,18 +51,18 @@ jobs:
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo "✅ Android SDK Installed."
 
-      - name: Manually Create License Directory
+      - name: Auto-Accept SDK Licenses (Fix License Issue)
         run: |
           export PATH="/usr/bin:/bin:$PATH"
-          mkdir -p $HOME/android-sdk/licenses
-          echo "✅ Manually created missing license directory!"
-
-      - name: Debug SDK License Acceptance (Force Mode)
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          echo "Running sdkmanager --licenses..."
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || echo "❌ sdkmanager failed to accept licenses!"
-          echo "✅ License check completed!"
+          echo "Running sdkmanager --licenses with expect..."
+          expect -c '
+          spawn $env(HOME)/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          expect {
+            "Accept? (y/N):" { send "y\r"; exp_continue }
+            eof
+          }
+          '
+          echo "✅ Licenses should now be accepted!"
 
       - name: Verify Accepted Licenses
         run: |
@@ -76,42 +76,17 @@ jobs:
             exit 1
           fi
 
-      - name: Manually Create License Files (If Missing)
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          mkdir -p $HOME/android-sdk/licenses
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
-          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/android-sdk/licenses/android-sdk-arm-dbt-license
-          echo "33cbbd2b7a24472b8a14df7523e97b9a8463d0d0" > $HOME/android-sdk/licenses/google-gdk-license
-          echo "✅ Manually created missing license files!"
-
-      - name: Install Android Build Tools & Platform Tools (Force Version 36.0.0)
+      - name: Install Android Build Tools & AIDL (Fix Missing AIDL)
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk
+          echo "Forcing fresh install of build-tools & AIDL..."
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
-            "platform-tools" "platforms;android-34" "build-tools;36.0.0"
+            "platform-tools" "platforms;android-34" "build-tools;36.0.0" "extras;android;m2repository"
 
-          echo "✅ Successfully installed build-tools;36.0.0!"
-          echo "Checking installed build-tools versions..."
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
-
-          echo "Verifying License Acceptance..."
-          ls -l $HOME/android-sdk/licenses/ || echo "❌ Error: License files are missing!"
-
-      - name: Verify Android SDK Installation
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          echo "Checking Build Tools Directory..."
-          ls -l "$HOME/android-sdk/build-tools/" || echo "⚠️ Build Tools directory not found!"
-          ls -l "$HOME/android-sdk/build-tools/36.0.0/" || echo "⚠️ Build Tools 36.0.0 not found!"
-          ls -l "$HOME/android-sdk/platform-tools/" || echo "⚠️ Platform Tools directory not found!"
-
-      - name: Install Buildozer and Dependencies
-        run: |
-          pip install --upgrade pip
-          pip install buildozer Cython virtualenv
+          echo "✅ Successfully installed build-tools;36.0.0 and AIDL!"
+          echo "Verifying Installed Build Tools..."
+          ls -l $HOME/android-sdk/build-tools/
 
       - name: Verify AIDL Installation
         run: |
@@ -120,8 +95,14 @@ jobs:
             echo "✅ AIDL is installed correctly!"
           else
             echo "❌ Error: AIDL is missing!"
+            ls -l $HOME/android-sdk/build-tools/36.0.0/
             exit 1
           fi
+
+      - name: Install Buildozer and Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install buildozer Cython virtualenv
 
       - name: Build APK
         run: |
