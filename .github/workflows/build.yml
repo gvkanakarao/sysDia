@@ -27,7 +27,6 @@ jobs:
           sudo apt-get install -y python3-pip python3-setuptools python3-dev \
             build-essential libssl-dev libffi-dev cython3 \
             openjdk-17-jdk unzip zlib1g-dev libncurses5-dev libsqlite3-dev
-            
 
       # Step 4: Install Buildozer and dependencies
       - name: Install Buildozer and Cython
