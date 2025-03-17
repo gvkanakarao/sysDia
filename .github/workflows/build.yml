@@ -51,18 +51,25 @@ jobs:
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo "✅ Android SDK Installed."
 
-      - name: Auto-Accept SDK Licenses (Fix License Issue)
+      - name: Manually Create License Directory & Add Licenses
         run: |
           export PATH="/usr/bin:/bin:$PATH"
-          echo "Running sdkmanager --licenses with expect..."
-          expect -c '
-          spawn $env(HOME)/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-          expect {
-            "Accept? (y/N):" { send "y\r"; exp_continue }
-            eof
-          }
-          '
-          echo "✅ Licenses should now be accepted!"
+          mkdir -p $HOME/android-sdk/licenses
+          echo "✅ Created missing license directory!"
+
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/android-sdk/licenses/android-sdk-arm-dbt-license
+          echo "33cbbd2b7a24472b8a14df7523e97b9a8463d0d0" > $HOME/android-sdk/licenses/google-gdk-license
+
+          echo "✅ Manually added Android SDK license files!"
+
+      - name: Force SDK Manager to Accept Licenses
+        run: |
+          export PATH="/usr/bin:/bin:$PATH"
+          echo "Forcing sdkmanager to accept licenses..."
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || echo "❌ sdkmanager still failed to accept licenses!"
+          echo "✅ License check completed!"
 
       - name: Verify Accepted Licenses
         run: |
