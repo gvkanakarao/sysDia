@@ -41,4 +41,45 @@ jobs:
           echo 'ANDROID_HOME=$HOME/android-sdk' >> $GITHUB_ENV
           echo 'ANDROID_SDK_ROOT=$HOME/android-sdk' >> $GITHUB_ENV
           echo 'PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/34.0.0:$PATH' >> $GITHUB_ENV
-          
+
+      # Step 6: Install Android SDK Command-line Tools
+      - name: Install Android SDK
+        run: |
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          cd $HOME/android-sdk/cmdline-tools/latest
+          curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -o sdk-tools.zip
+          mv cmdline-tools/* . || true
+          rmdir cmdline-tools || true
+          chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
+
+      # Step 7: Accept Android SDK Licenses (Fix License Issue)
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          mkdir -p $HOME/android-sdk/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55 d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-license
+
+      # Step 8: Install Android Build Tools & Platform Tools
+      - name: Install Android Build Tools & Platform Tools
+        run: |
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
+            "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      # Step 9: Verify Android SDK Installation
+      - name: Verify SDK Installation
+        run: |
+          ls -l $HOME/android-sdk/build-tools/ || true
+          ls -l $HOME/android-sdk/build-tools/34.0.0/ || true
+          ls -l $HOME/android-sdk/platform-tools/ || true
+
+      # Step 10: Build the APK using Buildozer
+      - name: Build APK
+        run: buildozer -v android debug
+
+      # Step 11: Upload the APK file as an artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: bin/*.apk
