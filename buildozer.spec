@@ -11,7 +11,6 @@ fullscreen = 0
 [buildozer]
 log_level = 2
 
-[app]
 android.api = 34  # Change from 31 to 34
 android.minapi = 21
 android.sdk = 34
