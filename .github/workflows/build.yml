@@ -50,30 +50,41 @@ jobs:
           rmdir cmdline-tools || true
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo "✅ Android SDK Installed."
-
-      - name: Debug SDK License Acceptance
+          
+      - name: Manually Create License Directory
         run: |
           export PATH="/usr/bin:/bin:$PATH"
-          echo "Checking Android SDK licenses..."
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || echo "❌ sdkmanager failed to accept licenses!"
-          echo "✅ License check completed!"
+          mkdir -p $HOME/android-sdk/licenses
+          echo "✅ Manually created missing license directory!"
+          
+        - name: Debug SDK License Acceptance (Force Mode)
+          run: |
+            export PATH="/usr/bin:/bin:$PATH"
+            echo "Running sdkmanager --licenses..."
+            yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || echo "❌ sdkmanager failed to accept licenses!"
+            echo "✅ License check completed!"
 
       - name: Verify Accepted Licenses
         run: |
           export PATH="/usr/bin:/bin:$PATH"
-          echo "Listing license files..."
-          ls -l $HOME/android-sdk/licenses/
-          cat $HOME/android-sdk/licenses/android-sdk-license || echo "❌ android-sdk-license file is missing!"
+          echo "Checking if license files exist..."
+          if [ -d "$HOME/android-sdk/licenses/" ]; then
+            ls -l $HOME/android-sdk/licenses/
+            cat $HOME/android-sdk/licenses/android-sdk-license || echo "❌ android-sdk-license file is missing!"
+          else
+            echo "❌ Error: License directory is missing!"
+            exit 1
+          fi
 
-      - name: Manually Create License Files (If Missing)
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          mkdir -p $HOME/android-sdk/licenses
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
-          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/android-sdk/licenses/android-sdk-arm-dbt-license
-          echo "33cbbd2b7a24472b8a14df7523e97b9a8463d0d0" > $HOME/android-sdk/licenses/google-gdk-license
-          echo "✅ Manually created missing license files!"
+        - name: Manually Create License Files (If Missing)
+          run: |
+            export PATH="/usr/bin:/bin:$PATH"
+            mkdir -p $HOME/android-sdk/licenses
+            echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
+            echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
+            echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/android-sdk/licenses/android-sdk-arm-dbt-license
+            echo "33cbbd2b7a24472b8a14df7523e97b9a8463d0d0" > $HOME/android-sdk/licenses/google-gdk-license
+            echo "✅ Manually created missing license files!"
 
       - name: Install Android Build Tools & Platform Tools (Force Version 36.0.0)
         run: |
