@@ -53,9 +53,12 @@ jobs:
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
 
       - name: Accept Android SDK Licenses
-        run: |
+        run:  |
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
+          mkdir -p $HOME/android-sdk/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license  
+    
       - name: Create License Files Manually (if needed)
         run: |
           mkdir -p $HOME/android-sdk/licenses
@@ -67,6 +70,10 @@ jobs:
         run: |
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+      - name: Verify AIDL Installation
+        run: |
+          ls -l $HOME/android-sdk/build-tools/34.0.0/
+          echo "PATH=$HOME/android-sdk/build-tools/34.0.0/:$PATH" >> $GITHUB_ENV
 
       # Step 8: Debug SDK structure if issues occur
       - name: Debug SDK Directory Structure
