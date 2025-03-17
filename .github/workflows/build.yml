@@ -51,7 +51,20 @@ jobs:
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo "✅ Android SDK Installed."
 
-      - name: Accept Android SDK Licenses (Fix License Issue)
+      - name: Debug SDK License Acceptance
+        run: |
+          export PATH="/usr/bin:/bin:$PATH"
+          echo "Checking Android SDK licenses..."
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Verify Accepted Licenses
+        run: |
+          export PATH="/usr/bin:/bin:$PATH"
+          echo "Listing license files..."
+          ls -l $HOME/android-sdk/licenses/
+          cat $HOME/android-sdk/licenses/android-sdk-license || echo "❌ android-sdk-license file is missing!"
+
+      - name: Manually Create License Files (If Missing)
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk/licenses
@@ -59,8 +72,7 @@ jobs:
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
           echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/android-sdk/licenses/android-sdk-arm-dbt-license
           echo "33cbbd2b7a24472b8a14df7523e97b9a8463d0d0" > $HOME/android-sdk/licenses/google-gdk-license
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          echo "✅ Android SDK licenses accepted!"
+          echo "✅ Manually created missing license files!"
 
       - name: Install Android Build Tools & Platform Tools (Force Version 36.0.0)
         run: |
