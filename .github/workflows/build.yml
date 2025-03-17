@@ -73,6 +73,9 @@ jobs:
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
+          echo "Verifying Installed Build Tools..."
+          ls -l $HOME/android-sdk/build-tools/
+
       # Step 9: Verify Android SDK Installation
       - name: Verify Android SDK Installation
         run: |
@@ -118,6 +121,19 @@ jobs:
       - name: Build APK
         run: |
           export PATH="/usr/bin:/bin:$PATH"
+          export ANDROID_HOME=$HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export ANDROID_NDK=$HOME/android-sdk/ndk/23b
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
+      
+          echo "Verifying AIDL Installation..."
+          if [ -f "$ANDROID_HOME/build-tools/34.0.0/aidl" ]; then
+            echo "✅ AIDL is installed correctly!"
+          else
+            echo "❌ Error: AIDL is missing!"
+            exit 1
+          fi
+      
           buildozer -v android debug
 
       # Step 13: Upload the APK file as an artifact
