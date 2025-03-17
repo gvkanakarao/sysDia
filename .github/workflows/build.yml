@@ -134,6 +134,9 @@ jobs:
           export ANDROID_NDK=$HOME/android-sdk/ndk/23b
           export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
       
+          echo "Verifying Installed Build Tools..."
+          ls -l $ANDROID_HOME/build-tools/
+      
           echo "Verifying AIDL Installation..."
           if [ -f "$ANDROID_HOME/build-tools/34.0.0/aidl" ]; then
             echo "✅ AIDL is installed correctly!"
