@@ -68,26 +68,24 @@ jobs:
       - name: Verify Accepted Licenses
         run: |
           export PATH="/usr/bin:/bin:$PATH"
-          echo "Checking if license files exist..."
-          if [ -d "$HOME/android-sdk/licenses/" ]; then
-            ls -l $HOME/android-sdk/licenses/
-            cat $HOME/android-sdk/licenses/android-sdk-license || echo "❌ android-sdk-license file is missing!"
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          mkdir -p $HOME/android-sdk
+      
+          echo "Forcing fresh install of build-tools & AIDL..."
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
+            "platform-tools" "platforms;android-34" "build-tools;36.0.0" "extras;android;m2repository"
+      
+          echo "✅ Finished installation! Listing available build-tools..."
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
+      
+          echo "Checking if build-tools directory exists..."
+          if [ -d "$HOME/android-sdk/build-tools/36.0.0" ]; then
+            echo "✅ Build-tools 36.0.0 is installed!"
+            ls -l $HOME/android-sdk/build-tools/36.0.0/
           else
-            echo "❌ Error: License directory is missing!"
+            echo "❌ Error: build-tools directory is missing!"
             exit 1
           fi
-
-      - name: Install Android Build Tools & AIDL (Fix Missing AIDL)
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          mkdir -p $HOME/android-sdk
-          echo "Forcing fresh install of build-tools & AIDL..."
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
-            "platform-tools" "platforms;android-34" "build-tools;36.0.0" "extras;android;m2repository"
-
-          echo "✅ Successfully installed build-tools;36.0.0 and AIDL!"
-          echo "Verifying Installed Build Tools..."
-          ls -l $HOME/android-sdk/build-tools/
 
       - name: Verify AIDL Installation
         run: |
