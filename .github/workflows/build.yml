@@ -51,25 +51,19 @@ jobs:
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo "✅ Android SDK Installed."
 
-      - name: Manually Create License Directory & Add Licenses
+      - name: Manually Copy Pre-Accepted Licenses
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk/licenses
           echo "✅ Created missing license directory!"
 
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
-          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $HOME/android-sdk/licenses/android-sdk-arm-dbt-license
-          echo "33cbbd2b7a24472b8a14df7523e97b9a8463d0d0" > $HOME/android-sdk/licenses/google-gdk-license
+          echo "Fetching pre-accepted Android SDK licenses..."
+          curl -o $HOME/android-sdk/licenses/android-sdk-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/android-sdk-license
+          curl -o $HOME/android-sdk/licenses/android-sdk-preview-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/android-sdk-preview-license
+          curl -o $HOME/android-sdk/licenses/android-sdk-arm-dbt-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/android-sdk-arm-dbt-license
+          curl -o $HOME/android-sdk/licenses/google-gdk-license https://raw.githubusercontent.com/android/sdk-sources/main/licenses/google-gdk-license
 
-          echo "✅ Manually added Android SDK license files!"
-
-      - name: Force SDK Manager to Accept Licenses
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          echo "Forcing sdkmanager to accept licenses..."
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || echo "❌ sdkmanager still failed to accept licenses!"
-          echo "✅ License check completed!"
+          echo "✅ Successfully copied pre-accepted licenses!"
 
       - name: Verify Accepted Licenses
         run: |
