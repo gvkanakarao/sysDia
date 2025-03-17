@@ -37,7 +37,7 @@ jobs:
         run: |
           echo 'ANDROID_HOME=$HOME/android-sdk' >> $GITHUB_ENV
           echo 'ANDROID_SDK_ROOT=$HOME/android-sdk' >> $GITHUB_ENV
-          echo 'PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/34.0.0:$PATH' >> $GITHUB_ENV
+          echo 'PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/36.0.0:$PATH' >> $GITHUB_ENV
 
       - name: Install Android SDK
         run: |
@@ -59,26 +59,14 @@ jobs:
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Remove Incorrect Build-Tools Version (36.0.0)
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          echo "Checking installed build-tools versions..."
-          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
-          if $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep -q 'build-tools;36.0.0'; then
-            echo "❌ Found build-tools;36.0.0. Removing..."
-            $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --uninstall "build-tools;36.0.0" || true
-          else
-            echo "✅ build-tools;36.0.0 is NOT installed!"
-          fi
-
-      - name: Install Android Build Tools & Platform Tools (Force Version 34.0.0)
+      - name: Install Android Build Tools & Platform Tools (Force Version 36.0.0)
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
-            "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+            "platform-tools" "platforms;android-34" "build-tools;36.0.0"
 
-          echo "✅ Successfully installed build-tools;34.0.0!"
+          echo "✅ Successfully installed build-tools;36.0.0!"
           echo "Checking installed build-tools versions..."
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
 
@@ -87,7 +75,7 @@ jobs:
           export PATH="/usr/bin:/bin:$PATH"
           echo "Checking Build Tools Directory..."
           ls -l "$HOME/android-sdk/build-tools/" || echo "⚠️ Build Tools directory not found!"
-          ls -l "$HOME/android-sdk/build-tools/34.0.0/" || echo "⚠️ Build Tools 34.0.0 not found!"
+          ls -l "$HOME/android-sdk/build-tools/36.0.0/" || echo "⚠️ Build Tools 36.0.0 not found!"
           ls -l "$HOME/android-sdk/platform-tools/" || echo "⚠️ Platform Tools directory not found!"
 
       - name: Install Buildozer and Dependencies
@@ -98,7 +86,7 @@ jobs:
       - name: Verify AIDL Installation
         run: |
           export PATH="/usr/bin:/bin:$PATH"
-          if [ -f "$HOME/android-sdk/build-tools/34.0.0/aidl" ]; then
+          if [ -f "$HOME/android-sdk/build-tools/36.0.0/aidl" ]; then
             echo "✅ AIDL is installed correctly!"
           else
             echo "❌ Error: AIDL is missing!"
@@ -111,21 +99,21 @@ jobs:
           export ANDROID_HOME=$HOME/android-sdk
           export ANDROID_SDK_ROOT=$HOME/android-sdk
           export ANDROID_NDK=$HOME/android-sdk/ndk/23b
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/34.0.0:$PATH
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/36.0.0:$PATH
       
           echo "Verifying Installed Build Tools..."
           ls -l $ANDROID_HOME/build-tools/
       
           echo "Verifying AIDL Installation..."
-          if [ -f "$ANDROID_HOME/build-tools/34.0.0/aidl" ]; then
+          if [ -f "$ANDROID_HOME/build-tools/36.0.0/aidl" ]; then
             echo "✅ AIDL is installed correctly!"
           else
             echo "❌ Error: AIDL is missing!"
             exit 1
           fi
       
-          echo "Forcing Buildozer to use build-tools;34.0.0"
-          sed -i '/android.build_tools_version/c\android.build_tools_version = 34.0.0' buildozer.spec || echo "Failed to override build-tools version in buildozer.spec"
+          echo "Forcing Buildozer to use build-tools;36.0.0"
+          sed -i '/android.build_tools_version/c\android.build_tools_version = 36.0.0' buildozer.spec || echo "Failed to override build-tools version in buildozer.spec"
 
           buildozer -v android debug
 
