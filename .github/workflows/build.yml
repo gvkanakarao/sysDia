@@ -82,11 +82,23 @@ jobs:
 
       - name: Verify SDK Installation
         run: |
-          export PATH="/usr/bin:/bin:$PATH"  # Restore basic system commands
+          export PATH="/usr/bin:/bin:$PATH"
           echo "Checking Build Tools Directory..."
-          /bin/ls -l $HOME/android-sdk/build-tools/ || true
-          /bin/ls -l $HOME/android-sdk/build-tools/34.0.0/ || true
-          /bin/ls -l $HOME/android-sdk/platform-tools/ || true
+          if [ -d "$HOME/android-sdk/build-tools" ]; then
+            ls -l $HOME/android-sdk/build-tools/
+          else
+            echo "Error: Build Tools directory not found!"
+          fi
+          if [ -d "$HOME/android-sdk/build-tools/34.0.0" ]; then
+            ls -l $HOME/android-sdk/build-tools/34.0.0/
+          else
+            echo "Error: Build Tools 34.0.0 not found!"
+          fi
+          if [ -d "$HOME/android-sdk/platform-tools" ]; then
+            ls -l $HOME/android-sdk/platform-tools/
+          else
+            echo "Error: Platform Tools directory not found!"
+          fi
 
           - name: Verify Git Installation
             run: |
