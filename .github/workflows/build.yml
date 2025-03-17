@@ -49,6 +49,7 @@ jobs:
           mv cmdline-tools/* . || true
           rmdir cmdline-tools || true
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
+          echo "✅ Android SDK Installed."
 
       - name: Accept Android SDK Licenses
         run: |
@@ -61,6 +62,8 @@ jobs:
       - name: Remove Incorrect Build-Tools Version (36.0.0)
         run: |
           export PATH="/usr/bin:/bin:$PATH"
+          echo "Checking installed build-tools versions..."
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
           if $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep -q 'build-tools;36.0.0'; then
             echo "❌ Found build-tools;36.0.0. Removing..."
             $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --uninstall "build-tools;36.0.0"
@@ -74,7 +77,10 @@ jobs:
           mkdir -p $HOME/android-sdk
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
           echo "✅ Successfully installed build-tools;34.0.0!"
+          echo "Checking installed build-tools versions..."
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools'
 
       - name: Verify Android SDK Installation
         run: |
