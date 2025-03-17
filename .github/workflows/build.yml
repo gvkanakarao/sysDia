@@ -28,15 +28,9 @@ jobs:
             build-essential libssl-dev libffi-dev cython3 \
             openjdk-17-jdk unzip zlib1g-dev libncurses5-dev libsqlite3-dev \
             python3-venv
-            git --version  # Check if Git is installed
+          git --version  # Verify Git installation
 
-      # Step 4: Install Buildozer and Cython
-      - name: Install Buildozer
-        run: |
-          pip install --upgrade pip
-          pip install buildozer Cython virtualenv
-
-      # Step 5: Set up Android SDK environment variables
+      # Step 4: Set up Android SDK environment variables
       - name: Set up Environment Variables
         shell: bash
         run: |
@@ -44,11 +38,12 @@ jobs:
           echo 'ANDROID_SDK_ROOT=$HOME/android-sdk' >> $GITHUB_ENV
           echo 'PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$HOME/android-sdk/build-tools/34.0.0:$PATH' >> $GITHUB_ENV
 
-      # Step 6: Install Android SDK Command-line Tools
+      # Step 5: Install Android SDK Command-line Tools
       - name: Install Android SDK
+        shell: bash
         run: |
-          export PATH="/bin:/usr/bin:$PATH"
-          /bin/mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          export PATH="/usr/bin:/bin:$PATH"
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
           cd $HOME/android-sdk/cmdline-tools/latest
           curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -o sdk-tools.zip
@@ -56,62 +51,61 @@ jobs:
           rmdir cmdline-tools || true
           chmod +x $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager
 
-      # Step 7: Accept Android SDK Licenses (Fix License Issue)
+      # Step 6: Accept Android SDK Licenses (Fix License Issue)
       - name: Accept Android SDK Licenses
+        shell: bash
         run: |
-          export PATH="/bin:/usr/bin:$PATH"
-          /bin/mkdir -p $HOME/android-sdk/licenses
+          export PATH="/usr/bin:/bin:$PATH"
+          mkdir -p $HOME/android-sdk/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
-          /usr/bin/yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-      # Step 8: Install Android Build Tools & Platform Tools
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      # Step 7: Install Android Build Tools & Platform Tools
       - name: Install Android Build Tools & Platform Tools
+        shell: bash
         run: |
-          export PATH="/bin:/usr/bin:$PATH"
+          export PATH="/usr/bin:/bin:$PATH"
           mkdir -p $HOME/android-sdk
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      # Step 9: Verify Android SDK Installation
-      - name: Verify System Commands
-        run: |
-          export PATH="/usr/bin:/bin:$PATH"
-          which ls || echo "Error: ls command is missing!"
-          which mkdir || echo "Error: mkdir command is missing!"
-          which sh || echo "Error: sh command is missing!"
-
-      - name: Verify SDK Installation
+      # Step 8: Verify Android SDK Installation
+      - name: Verify Android SDK Installation
+        shell: bash
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           echo "Checking Build Tools Directory..."
+
           if [ -d "$HOME/android-sdk/build-tools" ]; then
-            ls -l $HOME/android-sdk/build-tools/
+            ls -l "$HOME/android-sdk/build-tools/"
           else
-            echo "Error: Build Tools directory not found!"
+            echo "⚠️ Warning: Build Tools directory not found!"
           fi
+
           if [ -d "$HOME/android-sdk/build-tools/34.0.0" ]; then
-            ls -l $HOME/android-sdk/build-tools/34.0.0/
+            ls -l "$HOME/android-sdk/build-tools/34.0.0/"
           else
-            echo "Error: Build Tools 34.0.0 not found!"
+            echo "⚠️ Warning: Build Tools 34.0.0 not found!"
           fi
+
           if [ -d "$HOME/android-sdk/platform-tools" ]; then
-            ls -l $HOME/android-sdk/platform-tools/
+            ls -l "$HOME/android-sdk/platform-tools/"
           else
-            echo "Error: Platform Tools directory not found!"
+            echo "⚠️ Warning: Platform Tools directory not found!"
           fi
 
-          - name: Verify Git Installation
-            run: |
-              which git || echo "Git is NOT found!"
-              git --version || echo "Git is NOT installed properly!"
-
+      # Step 9: Install Buildozer and Dependencies
+      - name: Install Buildozer and Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install buildozer Cython virtualenv
 
       # Step 10: Build the APK using Buildozer
       - name: Build APK
+        shell: bash
         run: |
-          export PATH="/usr/bin:/bin:$PATH"  # Restore Git path
-          which git || echo "Git still missing!"  # Debugging output
-          git --version || echo "Git is still not installed!"
+          export PATH="/usr/bin:/bin:$PATH"
           buildozer -v android debug
 
       # Step 11: Upload the APK file as an artifact
