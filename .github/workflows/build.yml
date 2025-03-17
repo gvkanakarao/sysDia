@@ -64,6 +64,15 @@ jobs:
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
           yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+      - name: Remove Incorrect Build-Tools Version (36.0.0)
+        run: |
+          export PATH="/usr/bin:/bin:$PATH"
+          if $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --list | grep 'build-tools;36.0.0'; then
+            echo "❌ Found build-tools;36.0.0. Removing..."
+            $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --uninstall "build-tools;36.0.0"
+          else
+            echo "✅ build-tools;36.0.0 is NOT installed!"
+          fi
 
       # Step 8: Install Android Build Tools & Platform Tools (Force Version 34.0.0)
       - name: Install Android Build Tools & Platform Tools
@@ -72,9 +81,8 @@ jobs:
           mkdir -p $HOME/android-sdk
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-
-          echo "Verifying Installed Build Tools..."
-          ls -l $HOME/android-sdk/build-tools/
+      
+          echo "✅ Successfully installed build-tools;34.0.0!"
 
       # Step 9: Verify Android SDK Installation
       - name: Verify Android SDK Installation
