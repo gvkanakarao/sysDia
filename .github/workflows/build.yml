@@ -57,10 +57,11 @@ jobs:
       # Step 7: Accept Android SDK Licenses (Fix License Issue)
       - name: Accept Android SDK Licenses
         run: |
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          mkdir -p $HOME/android-sdk/licenses
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55 d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-license
-
+          export PATH="/bin:/usr/bin:$PATH"
+          /bin/mkdir -p $HOME/android-sdk/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $HOME/android-sdk/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > $HOME/android-sdk/licenses/android-sdk-preview-license
+          /usr/bin/yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
       # Step 8: Install Android Build Tools & Platform Tools
       - name: Install Android Build Tools & Platform Tools
         run: |
