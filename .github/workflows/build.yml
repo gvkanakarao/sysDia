@@ -65,6 +65,8 @@ jobs:
       # Step 8: Install Android Build Tools & Platform Tools
       - name: Install Android Build Tools & Platform Tools
         run: |
+          export PATH="/bin:/usr/bin:$PATH"
+          mkdir -p $HOME/android-sdk
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/android-sdk \
             "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
