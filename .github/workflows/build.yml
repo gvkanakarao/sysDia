@@ -78,9 +78,19 @@ jobs:
           ls -l $HOME/android-sdk/build-tools/34.0.0/ || true
           ls -l $HOME/android-sdk/platform-tools/ || true
 
+          - name: Verify Git Installation
+            run: |
+              which git || echo "Git is NOT found!"
+              git --version || echo "Git is NOT installed properly!"
+
+
       # Step 10: Build the APK using Buildozer
       - name: Build APK
-        run: buildozer -v android debug
+        run: |
+          export PATH="/usr/bin:/bin:$PATH"  # Restore Git path
+          which git || echo "Git still missing!"  # Debugging output
+          git --version || echo "Git is still not installed!"
+          buildozer -v android debug
 
       # Step 11: Upload the APK file as an artifact
       - name: Upload APK
