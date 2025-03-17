@@ -55,7 +55,8 @@ jobs:
         run: |
           export PATH="/usr/bin:/bin:$PATH"
           echo "Checking Android SDK licenses..."
-          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || echo "❌ sdkmanager failed to accept licenses!"
+          echo "✅ License check completed!"
 
       - name: Verify Accepted Licenses
         run: |
